@@ -1,6 +1,8 @@
 [submodule "todo-backend"]
 	path = todo-backend
 	url = git@github.com:jolicht/todo-backend.git
+	ignore = dirty
 [submodule "todo-frontend"]
 	path = todo-frontend
 	url = git@github.com:jolicht/todo-frontend.git
+	ignore = dirty
