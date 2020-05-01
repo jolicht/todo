@@ -1,0 +1,66 @@
+version: "3.7"
+services:
+  todo-backend-webserver:
+    image: nginx:alpine
+    container_name: todo-backend-webserver
+    working_dir: /application
+    volumes:
+      - ./todo-backend/src:/application
+      - ./todo-backend/docker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+    ports:
+      - "8080:80"
+    networks:
+      - todo-backend
+
+  todo-backend-php-fpm:
+    build: ./todo-backend/docker/php-fpm
+    container_name: todo-backend-php-fpm
+    volumes:
+      - ./todo-backend/src:/application
+    networks:
+      - todo-backend
+
+  todo-backend-database:
+    image: postgres:12.2
+    restart: always
+    container_name: todo-backend-database
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: todo_backend
+      POSTGRES_USER: todo_backend_user
+      POSTGRES_PASSWORD: todo_backend_pwd
+      POSTGRES_HOST: todo-backend-database
+    networks:
+      - todo-backend
+
+  todo-frontend:
+    build: ./todo-frontend/docker/node
+    container_name: todo-frontend
+    user: "node"
+    working_dir: /home/node/app
+    environment:
+      - NODE_ENV=development
+    expose:
+      - "8080"
+    ports:
+      - "9082:8080"
+    volumes:
+      - ./todo-frontend/src:/home/node/app
+    command: "yarn serve"
+
+
+  todo-frontend-webserver:
+    image: nginx:alpine
+    container_name: todo-frontend-webserver
+    working_dir: /application
+    volumes:
+      - ./todo-frontend/src:/application
+      - ./todo-frontend/docker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+    ports:
+      - "9081:80"
+networks:
+  todo-backend:
+    driver: bridge
+volumes:
+  postgres:
