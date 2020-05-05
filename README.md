@@ -14,4 +14,7 @@ cd todo
 make up
 ```
 
+### Application URLs
 
+* Vue Frontend App: [localhost:9080](http://localhost:9080/)
+* Traefik Dashboard: [localhost:9081/dashboard/](http://localhost:9081/dashboard/)

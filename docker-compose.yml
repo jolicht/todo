@@ -1,9 +1,22 @@
 version: "3.7"
 services:
+  todo-proxy:
+    image: traefik:v2.2
+    command: --api.insecure=true --providers.docker
+    ports:
+      - "9080:80"
+      - "9081:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - todo-backend
+
   todo-backend-webserver:
     image: nginx:alpine
     container_name: todo-backend-webserver
     working_dir: /application
+    labels:
+      - "traefik.http.routers.api.rule=Host(`localhost`) && PathPrefix(`/api/time/`)"
     volumes:
       - ./todo-backend/src:/application
       - ./todo-backend/docker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf
@@ -39,26 +52,22 @@ services:
     container_name: todo-frontend
     user: "node"
     working_dir: /home/node/app
+    labels:
+      - "traefik.enable=true"
+      - "traefik.backend=todo-frontend"
+      - "traefik.http.routers.app.rule=Host(`localhost`)"
     environment:
       - NODE_ENV=development
-    expose:
-      - "8080"
+#    expose:
+#      - "8080"
     ports:
-      - "9082:8080"
+      - "9083:8080"
     volumes:
       - ./todo-frontend/src:/home/node/app
     command: "yarn serve"
+    networks:
+      - todo-backend
 
-
-  todo-frontend-webserver:
-    image: nginx:alpine
-    container_name: todo-frontend-webserver
-    working_dir: /application
-    volumes:
-      - ./todo-frontend/src:/application
-      - ./todo-frontend/docker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf
-    ports:
-      - "9081:80"
 networks:
   todo-backend:
     driver: bridge
