@@ -1,5 +1,5 @@
 # todo
-Simple todo list application
+Soon to be a simple todo list application with vue frontend and ddd backend with several microservices. 
 
 ## Setup Development environment
 Make sure [docker](https://docs.docker.com/get-docker/) and 
